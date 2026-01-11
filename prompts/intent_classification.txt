@@ -1,0 +1,19 @@
+Classify the user's intent based on their query and conversation history.
+
+Intent Types:
+- SEARCH: User wants to find products (new search or initial query)
+- REFINE: User wants to modify or narrow down existing search filters
+- CLARIFY: User is asking for more information or clarification
+- CHITCHAT: General conversation, greetings, or non-product related queries
+
+Conversation History:
+{conversation_history}
+
+Current Query: {query}
+
+Respond with JSON:
+{{
+  "intent": "SEARCH | REFINE | CLARIFY | CHITCHAT",
+  "confidence": 0.0-1.0
+}}
+

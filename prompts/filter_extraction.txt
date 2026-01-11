@@ -1,0 +1,36 @@
+Extract structured filters from the user query and conversation context.
+
+Available Filters:
+- price_min: minimum price (number)
+- price_max: maximum price (number)
+- brand_include: list of brands to include (array of strings)
+- brand_exclude: list of brands to exclude (array of strings)
+- category: product category (string)
+- features: list of required features (array of strings)
+- rating_min: minimum rating (number, 1.0-5.0)
+
+Conversation History:
+{conversation_history}
+
+Current Query: {query}
+
+Existing Filters (may be overridden):
+{existing_filters}
+
+Vague Term Mappings:
+{vague_terms}
+
+Extract all applicable filters. If a filter is not mentioned, set it to null.
+Handle conflicts by prioritizing the most recent query.
+
+Respond with JSON:
+{{
+  "price_min": number | null,
+  "price_max": number | null,
+  "brand_include": [string] | null,
+  "brand_exclude": [string] | null,
+  "category": string | null,
+  "features": [string] | null,
+  "rating_min": number | null
+}}
+

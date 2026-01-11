@@ -1,0 +1,111 @@
+[
+  {
+    "id": "prod_001",
+    "name": "Wireless Bluetooth Headphones",
+    "category": "Electronics",
+    "brand": "TechSound",
+    "price": 79.99,
+    "rating": 4.5,
+    "features": ["wireless", "bluetooth", "noise-cancelling", "battery-20h"]
+  },
+  {
+    "id": "prod_002",
+    "name": "Smart Watch Pro",
+    "category": "Electronics",
+    "brand": "FitTech",
+    "price": 299.99,
+    "rating": 4.7,
+    "features": ["fitness-tracker", "heart-rate", "gps", "waterproof"]
+  },
+  {
+    "id": "prod_003",
+    "name": "Laptop Stand Aluminum",
+    "category": "Accessories",
+    "brand": "ErgoDesk",
+    "price": 45.00,
+    "rating": 4.3,
+    "features": ["adjustable", "aluminum", "portable"]
+  },
+  {
+    "id": "prod_004",
+    "name": "Mechanical Keyboard RGB",
+    "category": "Electronics",
+    "brand": "KeyMaster",
+    "price": 129.99,
+    "rating": 4.6,
+    "features": ["mechanical", "rgb-lighting", "wireless", "backlit"]
+  },
+  {
+    "id": "prod_005",
+    "name": "USB-C Hub 7-in-1",
+    "category": "Accessories",
+    "brand": "ConnectPro",
+    "price": 34.99,
+    "rating": 4.2,
+    "features": ["usb-c", "hdmi", "sd-card", "multiple-ports"]
+  },
+  {
+    "id": "prod_006",
+    "name": "Wireless Mouse Ergonomic",
+    "category": "Accessories",
+    "brand": "TechSound",
+    "price": 29.99,
+    "rating": 4.4,
+    "features": ["wireless", "ergonomic", "battery-12m"]
+  },
+  {
+    "id": "prod_007",
+    "name": "4K Webcam Pro",
+    "category": "Electronics",
+    "brand": "VisionTech",
+    "price": 199.99,
+    "rating": 4.8,
+    "features": ["4k", "auto-focus", "microphone", "low-light"]
+  },
+  {
+    "id": "prod_008",
+    "name": "Desk Lamp LED",
+    "category": "Accessories",
+    "brand": "LightWorks",
+    "price": 59.99,
+    "rating": 4.1,
+    "features": ["led", "adjustable", "dimmable", "usb-charging"]
+  },
+  {
+    "id": "prod_009",
+    "name": "Portable SSD 1TB",
+    "category": "Electronics",
+    "brand": "StorageMax",
+    "price": 89.99,
+    "rating": 4.7,
+    "features": ["ssd", "usb-c", "portable", "fast-transfer"]
+  },
+  {
+    "id": "prod_010",
+    "name": "Monitor Stand Dual",
+    "category": "Accessories",
+    "brand": "ErgoDesk",
+    "price": 75.00,
+    "rating": 4.5,
+    "features": ["dual-monitor", "adjustable", "cable-management"]
+  },
+  {
+    "id": "prod_011",
+    "name": "Gaming Mouse RGB",
+    "category": "Electronics",
+    "brand": "KeyMaster",
+    "price": 69.99,
+    "rating": 4.6,
+    "features": ["gaming", "rgb-lighting", "wireless", "high-dpi"]
+  },
+  {
+    "id": "prod_012",
+    "name": "Laptop Sleeve Premium",
+    "category": "Accessories",
+    "brand": "ProtectCase",
+    "price": 39.99,
+    "rating": 4.0,
+    "features": ["waterproof", "padded", "multiple-sizes"]
+  }
+]
+
