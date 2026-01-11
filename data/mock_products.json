@@ -107,5 +107,115 @@
     "rating": 4.0,
     "features": ["waterproof", "padded", "multiple-sizes"]
   }
+  ,
+    {
+      "id": "prod_013",
+      "name": "Noise Cancelling Earbuds",
+      "category": "Electronics",
+      "brand": "SoundPulse",
+      "price": 149.99,
+      "rating": 4.4,
+      "features": ["wireless", "noise-cancelling", "touch-controls", "battery-24h"]
+    },
+    {
+      "id": "prod_014",
+      "name": "Wireless Charging Pad",
+      "category": "Accessories",
+      "brand": "ChargeEase",
+      "price": 24.99,
+      "rating": 4.2,
+      "features": ["wireless-charging", "fast-charge", "led-indicator"]
+    },
+    {
+      "id": "prod_015",
+      "name": "Bluetooth Speaker Portable",
+      "category": "Electronics",
+      "brand": "SoundPulse",
+      "price": 99.99,
+      "rating": 4.6,
+      "features": ["bluetooth", "portable", "water-resistant", "battery-15h"]
+    },
+    {
+      "id": "prod_016",
+      "name": "Ergonomic Office Chair",
+      "category": "Furniture",
+      "brand": "ErgoDesk",
+      "price": 249.99,
+      "rating": 4.5,
+      "features": ["ergonomic", "lumbar-support", "adjustable-height", "mesh-back"]
+    },
+    {
+      "id": "prod_017",
+      "name": "USB-C to HDMI Adapter",
+      "category": "Accessories",
+      "brand": "ConnectPro",
+      "price": 19.99,
+      "rating": 4.1,
+      "features": ["usb-c", "hdmi", "4k-support", "plug-and-play"]
+    },
+    {
+      "id": "prod_018",
+      "name": "Mechanical Keyboard Low Profile",
+      "category": "Electronics",
+      "brand": "KeyMaster",
+      "price": 159.99,
+      "rating": 4.7,
+      "features": ["mechanical", "low-profile", "wireless", "backlit"]
+    },
+    {
+      "id": "prod_019",
+      "name": "Webcam HD 1080p",
+      "category": "Electronics",
+      "brand": "VisionTech",
+      "price": 89.99,
+      "rating": 4.3,
+      "features": ["1080p", "auto-focus", "built-in-microphone"]
+    },
+    {
+      "id": "prod_020",
+      "name": "Power Bank 20000mAh",
+      "category": "Accessories",
+      "brand": "ChargeEase",
+      "price": 49.99,
+      "rating": 4.6,
+      "features": ["fast-charging", "usb-c", "portable", "high-capacity"]
+    },
+    {
+      "id": "prod_021",
+      "name": "Standing Desk Converter",
+      "category": "Furniture",
+      "brand": "ErgoDesk",
+      "price": 199.99,
+      "rating": 4.4,
+      "features": ["adjustable-height", "standing-desk", "workspace-organizer"]
+    },
+    {
+      "id": "prod_022",
+      "name": "Gaming Headset Surround Sound",
+      "category": "Electronics",
+      "brand": "GameWave",
+      "price": 119.99,
+      "rating": 4.5,
+      "features": ["surround-sound", "noise-isolation", "rgb-lighting", "wired"]
+    },
+    {
+      "id": "prod_023",
+      "name": "Smart Home Plug Wi-Fi",
+      "category": "Electronics",
+      "brand": "HomeLink",
+      "price": 29.99,
+      "rating": 4.2,
+      "features": ["wifi-enabled", "voice-control", "energy-monitoring"]
+    },
+    {
+      "id": "prod_024",
+      "name": "Tablet Stand Adjustable",
+      "category": "Accessories",
+      "brand": "ErgoDesk",
+      "price": 35.99,
+      "rating": 4.3,
+      "features": ["adjustable", "portable", "anti-slip"]
+    }
+    
 ]
 

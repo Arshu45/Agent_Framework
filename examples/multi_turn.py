@@ -12,23 +12,37 @@ def main():
     print("="*60)
     print("Multi-Turn Conversation Example")
     print("="*60)
+    print("\nEnter your queries interactively.")
+    print("Type 'quit', 'exit', or 'q' to end the conversation.")
+    print("Type 'reset' to start a new conversation.\n")
     
     # Initialize agent
     agent = Agent()
     
-    # Conversation flow
-    queries = [
-        "I'm looking for electronics",
-        "Actually, I need headphones specifically",
-        "Make it wireless and under $80",
-        "What features do they have?"
-    ]
+    turn = 0
     
-    for turn, query in enumerate(queries, 1):
+    while True:
+        turn += 1
+        
+        # Get user input
         print(f"\n{'='*60}")
         print(f"TURN {turn}")
         print(f"{'='*60}")
-        print(f"\nUser: {query}\n")
+        query = input("\nYou: ").strip()
+        
+        # Check for exit commands
+        if query.lower() in ['quit', 'exit', 'q', '']:
+            print(f"\n{'='*60}")
+            print("CONVERSATION ENDED")
+            print(f"{'='*60}\n")
+            break
+        
+        # Check for reset command
+        if query.lower() == 'reset':
+            agent.reset_session()
+            turn = 0
+            print("\n✓ Conversation reset. Starting fresh...\n")
+            continue
         
         # Process query
         response = agent.process(query)
@@ -55,10 +69,6 @@ def main():
             print(f"\nFollow-up Questions:")
             for i, question in enumerate(response.follow_up_questions, 1):
                 print(f"  {i}. {question}")
-    
-    print(f"\n{'='*60}")
-    print("CONVERSATION COMPLETE")
-    print(f"{'='*60}\n")
 
 
 if __name__ == "__main__":
