@@ -35,11 +35,25 @@ class LLMClient:
             groq_api_key=config.GROQ_API_KEY
         )
         
-        # Load mock products to validate IDs and look up names
-        with open(config.MOCK_PRODUCTS_FILE, "r") as f:
-            products = json.load(f)
-            self.valid_product_ids = {p["id"] for p in products}
-            self.product_lookup = {p["id"]: p for p in products}  # For quick name lookup
+        # Load product catalog for validation (can be updated dynamically)
+        self._load_product_catalog()
+    
+    def _load_product_catalog(self, products: List[Dict] = None):
+        """Load product catalog for validation and lookup"""
+        if products is None:
+            # Fallback to mock products
+            try:
+                with open(config.MOCK_PRODUCTS_FILE, "r") as f:
+                    products = json.load(f)
+            except:
+                products = []
+        
+        self.valid_product_ids = {p["id"] for p in products}
+        self.product_lookup = {p["id"]: p for p in products}  # For quick name lookup
+    
+    def update_product_catalog(self, products: List[Dict]):
+        """Update product catalog (e.g., from retriever)"""
+        self._load_product_catalog(products)
     
     def get_recommendations(self, prompt: str, max_retries: int = 2) -> Dict:
         """

@@ -7,6 +7,7 @@ from agent.filter_extractor import FilterExtractor
 from agent.prompt_builder import PromptBuilder
 from agent.llm_client import LLMClient
 from agent.context_manager import ContextManager
+from agent.product_retriever import ProductRetriever
 
 import config
 
@@ -35,12 +36,14 @@ class AgentResponse:
 class Agent:
     """Main agent orchestrator"""
     
-    def __init__(self):
+    def __init__(self, product_retriever=None):
         self.intent_classifier = IntentClassifier()
         self.filter_extractor = FilterExtractor()
         self.prompt_builder = PromptBuilder()
         self.llm_client = LLMClient()
         self.context_manager = ContextManager()
+        # Use provided retriever or default to API retriever
+        self.product_retriever = product_retriever or ProductRetriever()
     
     def process(self, user_query: str) -> AgentResponse:
         """
@@ -83,9 +86,27 @@ class Agent:
         updated_filters = self.context_manager.get_filters()
         print(f"Updated filters: {updated_filters}")
         
-        # 4. Prompt Building
-        print("\nStep 4: Building prompt...")
-        prompt = self.prompt_builder.build(user_query, history, updated_filters)
+        # 4. Retrieve products from retriever (API/RAG)
+        print("\nStep 4a: Retrieving products...")
+        retrieved_products = self.product_retriever.retrieve(
+            query=user_query,
+            filters=updated_filters,
+            top_k=10
+        )
+        print(f"Retrieved {len(retrieved_products)} products")
+        
+        # Update LLM client's product catalog for validation
+        if retrieved_products:
+            self.llm_client.update_product_catalog(retrieved_products)
+        
+        # 4b. Prompt Building
+        print("\nStep 4b: Building prompt...")
+        prompt = self.prompt_builder.build(
+            user_query, 
+            history, 
+            updated_filters,
+            products=retrieved_products  # Pass retrieved products
+        )
         print(f"Prompt length: {len(prompt)} characters")
         
         # 5. LLM Call & Parsing

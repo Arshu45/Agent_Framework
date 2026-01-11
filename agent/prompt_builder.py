@@ -20,7 +20,7 @@ class PromptBuilder:
             self.all_products = json.load(f)
     
     def build(self, query: str, conversation_history: List[Dict], 
-              filters: Dict) -> str:
+              filters: Dict, products: List[Dict] = None) -> str:
         """
         Build final recommendation prompt
         
@@ -28,6 +28,7 @@ class PromptBuilder:
             query: Current user query
             conversation_history: List of previous conversation turns
             filters: Extracted filters
+            products: List of products from retriever (if None, uses rule-based)
             
         Returns:
             Complete prompt string
@@ -46,8 +47,16 @@ class PromptBuilder:
         prompt_parts.append(self._format_filters(filters))
         prompt_parts.append("\n" + "="*50 + "\n")
         
-        # 4. Mock product context (TOP-K matching products)
-        top_products = self._get_top_products(filters)
+        # 4. Product context (from retriever or rule-based)
+        if products is not None:
+            # Use products from retriever (RAG/API)
+            # NOTE: With RAG, products are already semantically matched and filtered
+            # Post-filtering here is optional (for additional refinement)
+            top_products = self._apply_filters_to_products(products, filters)
+        else:
+            # Fallback to rule-based matching (no retriever)
+            top_products = self._get_top_products(filters)
+        
         prompt_parts.append("AVAILABLE PRODUCTS:")
         prompt_parts.append(self._format_products(top_products))
         prompt_parts.append("\n" + "="*50 + "\n")
@@ -152,6 +161,18 @@ class PromptBuilder:
                 score *= (1.0 + matches * 0.2)
         
         return score
+    
+    def _apply_filters_to_products(self, products: List[Dict], filters: Dict) -> List[Dict]:
+        """Apply filters to retriever products (post-filtering)"""
+        filtered = []
+        for product in products:
+            score = self._match_score(product, filters)
+            if score > 0:
+                filtered.append((score, product))
+        
+        # Sort by score and return
+        filtered.sort(key=lambda x: x[0], reverse=True)
+        return [p for _, p in filtered]
     
     def _format_products(self, products: List[Dict]) -> str:
         """Format products for prompt"""
