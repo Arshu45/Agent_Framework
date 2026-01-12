@@ -75,9 +75,11 @@ class RAGRetriever:
             raw_filters = self._extract_attributes(query)
             print(f"  [RAG] LLM-extracted filters: {raw_filters}")
             
-            # 3. Merge agent filters with extracted filters
-            chroma_filters = self._build_chroma_filters(raw_filters, filters)
-            print(f"  [RAG] ChromaDB filters: {chroma_filters}")
+            # 3. Use only LLM-extracted filters for ChromaDB (ignore agent-provided filters)
+            if filters:
+                print("  [RAG] Ignoring agent-supplied filters; using only LLM-extracted filters for ChromaDB.")
+            chroma_filters = self._build_chroma_filters(raw_filters, None)
+            print(f"  [RAG] ChromaDB filters (from RAG only): {chroma_filters}")
             
             # Check collection count
             collection_count = self.collection.count()
