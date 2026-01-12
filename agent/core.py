@@ -7,9 +7,16 @@ from agent.filter_extractor import FilterExtractor
 from agent.prompt_builder import PromptBuilder
 from agent.llm_client import LLMClient
 from agent.context_manager import ContextManager
-from agent.product_retriever import ProductRetriever
 
 import config
+
+# Try to import RAG retriever (optional)
+try:
+    from agent.rag_retriever import RAGRetriever
+    RAG_AVAILABLE = True
+except ImportError:
+    RAG_AVAILABLE = False
+    RAGRetriever = None
 
 
 class AgentResponse:
@@ -36,14 +43,26 @@ class AgentResponse:
 class Agent:
     """Main agent orchestrator"""
     
-    def __init__(self, product_retriever=None):
+    def __init__(self, product_retriever=None, use_rag=False):
         self.intent_classifier = IntentClassifier()
         self.filter_extractor = FilterExtractor()
         self.prompt_builder = PromptBuilder()
         self.llm_client = LLMClient()
         self.context_manager = ContextManager()
-        # Use provided retriever or default to API retriever
-        self.product_retriever = product_retriever or ProductRetriever()
+        
+        # Choose retriever: RAG > provided
+        if product_retriever:
+            self.product_retriever = product_retriever
+        elif use_rag and RAG_AVAILABLE:
+            self.product_retriever = RAGRetriever()
+            print("✓ Using RAG Retriever (ChromaDB)")
+        else:
+            # Default to RAG if available
+            if RAG_AVAILABLE:
+                self.product_retriever = RAGRetriever()
+                print("✓ Using RAG Retriever (ChromaDB)")
+            else:
+                raise ImportError("RAG Retriever not available and no product_retriever provided.")
     
     def process(self, user_query: str) -> AgentResponse:
         """

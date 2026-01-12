@@ -14,10 +14,6 @@ class PromptBuilder:
         # Load system prompt
         with open(f"{config.PROMPTS_DIR}/system_prompt.txt", "r") as f:
             self.system_prompt = f.read()
-        
-        # Load mock products
-        with open(config.MOCK_PRODUCTS_FILE, "r") as f:
-            self.all_products = json.load(f)
     
     def build(self, query: str, conversation_history: List[Dict], 
               filters: Dict, products: List[Dict] = None) -> str:
@@ -48,14 +44,10 @@ class PromptBuilder:
         prompt_parts.append("\n" + "="*50 + "\n")
         
         # 4. Product context (from retriever or rule-based)
-        if products is not None:
-            # Use products from retriever (RAG/API)
-            # NOTE: With RAG, products are already semantically matched and filtered
-            # Post-filtering here is optional (for additional refinement)
-            top_products = self._apply_filters_to_products(products, filters)
-        else:
-            # Fallback to rule-based matching (no retriever)
-            top_products = self._get_top_products(filters)
+        if products is None:
+            products = []
+        # Use products from retriever (RAG/API); post-filtering is optional
+        top_products = self._apply_filters_to_products(products, filters)
         
         prompt_parts.append("AVAILABLE PRODUCTS:")
         prompt_parts.append(self._format_products(top_products))
@@ -108,19 +100,6 @@ class PromptBuilder:
             filter_lines.append(f"- Minimum Rating: {filters['rating_min']}")
         
         return "\n".join(filter_lines) if filter_lines else "No specific filters."
-    
-    def _get_top_products(self, filters: Dict, top_k: int = 10) -> List[Dict]:
-        """Get top-K products matching filters"""
-        matching = []
-        
-        for product in self.all_products:
-            score = self._match_score(product, filters)
-            if score > 0:
-                matching.append((score, product))
-        
-        # Sort by score (descending) and return top-K
-        matching.sort(key=lambda x: x[0], reverse=True)
-        return [p for _, p in matching[:top_k]]
     
     def _match_score(self, product: Dict, filters: Dict) -> float:
         """Calculate match score for a product"""

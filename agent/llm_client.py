@@ -34,22 +34,15 @@ class LLMClient:
             max_tokens=config.MAX_TOKENS,
             groq_api_key=config.GROQ_API_KEY
         )
-        
-        # Load product catalog for validation (can be updated dynamically)
-        self._load_product_catalog()
+        # Start with empty catalog; updated by retrievers at runtime
+        self.valid_product_ids: set = set()
+        self.product_lookup: Dict = {}
     
     def _load_product_catalog(self, products: List[Dict] = None):
         """Load product catalog for validation and lookup"""
-        if products is None:
-            # Fallback to mock products
-            try:
-                with open(config.MOCK_PRODUCTS_FILE, "r") as f:
-                    products = json.load(f)
-            except:
-                products = []
-        
-        self.valid_product_ids = {p["id"] for p in products}
-        self.product_lookup = {p["id"]: p for p in products}  # For quick name lookup
+        products = products or []
+        self.valid_product_ids = {p.get("id") for p in products if p.get("id")}
+        self.product_lookup = {p["id"]: p for p in products if p.get("id")}  # For quick name lookup
     
     def update_product_catalog(self, products: List[Dict]):
         """Update product catalog (e.g., from retriever)"""
@@ -117,28 +110,32 @@ class LLMClient:
                     reasoning = rec.get("reasoning", "")
                     product_name = rec.get("product_name", "")
                     
-                    # Validate product ID exists
-                    if product_id in self.valid_product_ids:
-                        # If product_name not provided, look it up from product data
-                        if not product_name and product_id in self.product_lookup:
-                            product_name = self.product_lookup[product_id].get("name", "")
-                        
-                        recommendations.append({
-                            "product_id": product_id,
-                            "product_name": product_name or "Unknown Product",
-                            "reasoning": reasoning or "Recommended based on your preferences"
-                        })
+                    # If we have a catalog, ensure the ID exists; otherwise accept as-is
+                    id_is_valid = (not self.valid_product_ids) or (product_id in self.valid_product_ids)
+                    if not id_is_valid:
+                        continue
+                    
+                    # If product_name not provided, look it up from product data
+                    if not product_name and product_id in self.product_lookup:
+                        product_name = self.product_lookup[product_id].get("name", "")
+                    
+                    recommendations.append({
+                        "product_id": product_id or "unknown_id",
+                        "product_name": product_name or "Unknown Product",
+                        "reasoning": reasoning or "Recommended based on your preferences"
+                    })
         
         # Ensure at least one recommendation
         if not recommendations:
-            # Fallback: return first product
-            first_id = list(self.valid_product_ids)[0]
-            first_product = self.product_lookup.get(first_id, {})
-            recommendations.append({
-                "product_id": first_id,
-                "product_name": first_product.get("name", "Unknown Product"),
-                "reasoning": "Fallback recommendation"
-            })
+            # If we have a catalog, use the first product as fallback; otherwise return empty
+            if self.valid_product_ids:
+                first_id = list(self.valid_product_ids)[0]
+                first_product = self.product_lookup.get(first_id, {})
+                recommendations.append({
+                    "product_id": first_id,
+                    "product_name": first_product.get("name", "Unknown Product"),
+                    "reasoning": "Fallback recommendation"
+                })
         
         # Extract follow-up questions
         follow_up_questions = parsed.get("follow_up_questions", [])
@@ -160,15 +157,19 @@ class LLMClient:
     def _fallback_response(self) -> Dict:
         """Graceful fallback response"""
         print("Using fallback response")
-        first_id = list(self.valid_product_ids)[0]
-        first_product = self.product_lookup.get(first_id, {})
-        return {
-            "recommendations": [{
+        if self.valid_product_ids:
+            first_id = list(self.valid_product_ids)[0]
+            first_product = self.product_lookup.get(first_id, {})
+            recommendations = [{
                 "product_id": first_id,
                 "product_name": first_product.get("name", "Unknown Product"),
                 "reasoning": "Fallback recommendation due to processing error"
-            }],
-            "summary": "Unable to process request fully. Here's a general recommendation.",
+            }]
+        else:
+            recommendations = []
+        return {
+            "recommendations": recommendations,
+            "summary": "Unable to process request fully.",
             "follow_up_questions": [
                 "Would you like to see more options?",
                 "Do you have a specific budget in mind?",
