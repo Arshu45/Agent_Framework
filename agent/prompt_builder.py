@@ -14,13 +14,9 @@ class PromptBuilder:
         # Load system prompt
         with open(f"{config.PROMPTS_DIR}/system_prompt.txt", "r") as f:
             self.system_prompt = f.read()
-        
-        # Load mock products
-        with open(config.MOCK_PRODUCTS_FILE, "r") as f:
-            self.all_products = json.load(f)
     
     def build(self, query: str, conversation_history: List[Dict], 
-              filters: Dict) -> str:
+              filters: Dict, products: List[Dict] = None) -> str:
         """
         Build final recommendation prompt
         
@@ -28,6 +24,7 @@ class PromptBuilder:
             query: Current user query
             conversation_history: List of previous conversation turns
             filters: Extracted filters
+            products: List of products from retriever (if None, uses rule-based)
             
         Returns:
             Complete prompt string
@@ -46,8 +43,12 @@ class PromptBuilder:
         prompt_parts.append(self._format_filters(filters))
         prompt_parts.append("\n" + "="*50 + "\n")
         
-        # 4. Mock product context (TOP-K matching products)
-        top_products = self._get_top_products(filters)
+        # 4. Product context (from retriever or rule-based)
+        if products is None:
+            products = []
+        # Use products from retriever (RAG/API); post-filtering is optional
+        top_products = self._apply_filters_to_products(products, filters)
+        
         prompt_parts.append("AVAILABLE PRODUCTS:")
         prompt_parts.append(self._format_products(top_products))
         prompt_parts.append("\n" + "="*50 + "\n")
@@ -100,19 +101,6 @@ class PromptBuilder:
         
         return "\n".join(filter_lines) if filter_lines else "No specific filters."
     
-    def _get_top_products(self, filters: Dict, top_k: int = 10) -> List[Dict]:
-        """Get top-K products matching filters"""
-        matching = []
-        
-        for product in self.all_products:
-            score = self._match_score(product, filters)
-            if score > 0:
-                matching.append((score, product))
-        
-        # Sort by score (descending) and return top-K
-        matching.sort(key=lambda x: x[0], reverse=True)
-        return [p for _, p in matching[:top_k]]
-    
     def _match_score(self, product: Dict, filters: Dict) -> float:
         """Calculate match score for a product"""
         score = 1.0
@@ -152,6 +140,18 @@ class PromptBuilder:
                 score *= (1.0 + matches * 0.2)
         
         return score
+    
+    def _apply_filters_to_products(self, products: List[Dict], filters: Dict) -> List[Dict]:
+        """Apply filters to retriever products (post-filtering)"""
+        filtered = []
+        for product in products:
+            score = self._match_score(product, filters)
+            if score > 0:
+                filtered.append((score, product))
+        
+        # Sort by score and return
+        filtered.sort(key=lambda x: x[0], reverse=True)
+        return [p for _, p in filtered]
     
     def _format_products(self, products: List[Dict]) -> str:
         """Format products for prompt"""

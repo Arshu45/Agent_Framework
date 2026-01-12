@@ -10,6 +10,14 @@ from agent.context_manager import ContextManager
 
 import config
 
+# Try to import RAG retriever (optional)
+try:
+    from agent.rag_retriever import RAGRetriever
+    RAG_AVAILABLE = True
+except ImportError:
+    RAG_AVAILABLE = False
+    RAGRetriever = None
+
 
 class AgentResponse:
     """Structured agent response"""
@@ -35,12 +43,26 @@ class AgentResponse:
 class Agent:
     """Main agent orchestrator"""
     
-    def __init__(self):
+    def __init__(self, product_retriever=None, use_rag=False):
         self.intent_classifier = IntentClassifier()
         self.filter_extractor = FilterExtractor()
         self.prompt_builder = PromptBuilder()
         self.llm_client = LLMClient()
         self.context_manager = ContextManager()
+        
+        # Choose retriever: RAG > provided
+        if product_retriever:
+            self.product_retriever = product_retriever
+        elif use_rag and RAG_AVAILABLE:
+            self.product_retriever = RAGRetriever()
+            print("✓ Using RAG Retriever (ChromaDB)")
+        else:
+            # Default to RAG if available
+            if RAG_AVAILABLE:
+                self.product_retriever = RAGRetriever()
+                print("✓ Using RAG Retriever (ChromaDB)")
+            else:
+                raise ImportError("RAG Retriever not available and no product_retriever provided.")
     
     def process(self, user_query: str) -> AgentResponse:
         """
@@ -83,9 +105,27 @@ class Agent:
         updated_filters = self.context_manager.get_filters()
         print(f"Updated filters: {updated_filters}")
         
-        # 4. Prompt Building
-        print("\nStep 4: Building prompt...")
-        prompt = self.prompt_builder.build(user_query, history, updated_filters)
+        # 4. Retrieve products from retriever (API/RAG)
+        print("\nStep 4a: Retrieving products...")
+        retrieved_products = self.product_retriever.retrieve(
+            query=user_query,
+            filters=updated_filters,
+            top_k=10
+        )
+        print(f"Retrieved {len(retrieved_products)} products")
+        
+        # Update LLM client's product catalog for validation
+        if retrieved_products:
+            self.llm_client.update_product_catalog(retrieved_products)
+        
+        # 4b. Prompt Building
+        print("\nStep 4b: Building prompt...")
+        prompt = self.prompt_builder.build(
+            user_query, 
+            history, 
+            updated_filters,
+            products=retrieved_products  # Pass retrieved products
+        )
         print(f"Prompt length: {len(prompt)} characters")
         
         # 5. LLM Call & Parsing
